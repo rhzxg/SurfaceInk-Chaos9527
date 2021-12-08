@@ -12,6 +12,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             
             <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
@@ -20,15 +21,29 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <InkToolbar Grid.Row="0" TargetInkCanvas="{x:Bind inkCanvas}"/>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <InkToolbar Name="inkToolBar" TargetInkCanvas="{x:Bind inkCanvas}" Margin="0, 0, 3, 0"/>
+                        <Line Y1="0"
+                              Y2="{ThemeResource InkToolbarButtonHeight}"
+                              HorizontalAlignment="Stretch"
+                              Width="2"
+                              Height="{ThemeResource InkToolbarButtonHeight}"
+                              StrokeThickness="2"
+                              Stroke="Gray"/>
+                        <!-- This two buttons are for debug only-->
+                        <Button x:Name="ResetButton" Content="Reset" Width="65" Margin="2,0,3,0" Click="OnReset"/>
+                        <Button x:Name="ReplayButton" Content="Replay"  Width="65" Margin="0,0,3,0" Click="OnReplay"/>
+                    </StackPanel>
                     <ScrollViewer Grid.Row="1" x:Name="scrollViewer" ZoomMode="Enabled" MinZoomFactor="1" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Auto">
-                        <Grid x:Name="outputGrid" Background="Green" Height="Auto">
+                        <Grid x:Name="outputGrid" Height="Auto">
                             <!-- Inking area -->
                             <InkCanvas x:Name="inkCanvas" Height="Auto"/>
                         </Grid>
                     </ScrollViewer>
                 </Grid>
             </ScrollViewer>
+
+            <ProgressBar x:Name="ReplayProgress" Grid.Row="2" Visibility="Collapsed" Foreground="Salmon"/>
         </Grid>
     </Grid>
 </Page>
