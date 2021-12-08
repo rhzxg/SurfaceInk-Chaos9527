@@ -18,6 +18,7 @@ namespace SurfaceInk
 		MainPage();
 	private:
 		void OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
+        void UpdateFrameworkSize();
         void InkPresenter_StrokesCollected(Windows::UI::Input::Inking::InkPresenter^ sender, Windows::UI::Input::Inking::InkStrokesCollectedEventArgs^ e);
         void OnReset(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
         void OnReplay(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);

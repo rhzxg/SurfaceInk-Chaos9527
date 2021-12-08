@@ -10,18 +10,17 @@
     <Grid Background="White">
         <Grid x:Name="RootGrid" Margin="12,10,12,12">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
-                <Grid HorizontalAlignment="Left" VerticalAlignment="Top">
+            <ScrollViewer Grid.Row="0" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
+                <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Background="{ThemeResource SystemChromeMediumColor}">
                         <InkToolbar Name="inkToolBar" TargetInkCanvas="{x:Bind inkCanvas}" Margin="0, 0, 3, 0"/>
                         <Line Y1="0"
                               Y2="{ThemeResource InkToolbarButtonHeight}"
@@ -43,7 +42,7 @@
                 </Grid>
             </ScrollViewer>
 
-            <ProgressBar x:Name="ReplayProgress" Grid.Row="2" Visibility="Collapsed" Foreground="Salmon"/>
+            <ProgressBar x:Name="ReplayProgress" Grid.Row="1" Visibility="Collapsed" Foreground="Salmon"/>
         </Grid>
     </Grid>
 </Page>

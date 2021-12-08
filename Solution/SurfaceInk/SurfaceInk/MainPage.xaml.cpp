@@ -5,7 +5,6 @@
 
 #include "pch.h"
 #include "MainPage.xaml.h"
-#include "Configuration.h"
 #include <WindowsNumerics.h>
 
 using namespace SurfaceInk;
@@ -23,6 +22,7 @@ using namespace Windows::UI::Input::Inking;
 using namespace Windows::UI::Input::Inking::Core;
 using namespace Windows::UI::Xaml::Navigation;
 
+
 MainPage::MainPage()
 {
 	InitializeComponent();
@@ -35,7 +35,15 @@ MainPage::MainPage()
 
 void MainPage::OnSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
 {
-	HelperFunctions::UpdateCanvasSize(RootGrid, outputGrid, inkCanvas);
+    UpdateFrameworkSize();
+}
+
+void MainPage::UpdateFrameworkSize() {
+    outputGrid->Width = RootGrid->ActualWidth;
+    outputGrid->Height = RootGrid->ActualHeight - inkToolBar->ActualHeight - ReplayProgress->ActualHeight;
+    inkCanvas->Width = RootGrid->ActualWidth;
+    inkCanvas->Height = RootGrid->ActualHeight - inkToolBar->ActualHeight - ReplayProgress->ActualHeight;
+
 }
 
 //void MainPage::OnNavigatingFrom(NavigatingCancelEventArgs^ e)
@@ -65,6 +73,7 @@ void MainPage::OnReset(Object^ sender, RoutedEventArgs^ e)
     inkCanvas->InkPresenter->StrokeContainer->Clear();
     ClearCanvasStrokeCache();
     // rootPage->NotifyUser("Cleared Canvas", NotifyType::StatusMessage);
+    inkToolBar->TargetInkCanvas = inkCanvas;
 }
 
 void MainPage::ClearCanvasStrokeCache()
@@ -76,7 +85,7 @@ void MainPage::ClearCanvasStrokeCache()
     outputGrid->Children->Append(inkCanvas);
     inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
     inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
-    HelperFunctions::UpdateCanvasSize(RootGrid, outputGrid, inkCanvas);
+    UpdateFrameworkSize();
 }
 
 DateTime GetCurrentDateTime()
@@ -168,6 +177,7 @@ void MainPage::InkReplayTimer_Tick(Object^ sender, Object^ e)
 
     DateTime timeEquivalentInRecordedSession = DateTime{ beginTimeOfRecordedSession.UniversalTime + timeElapsedInReplay.Duration };
     inkCanvas->InkPresenter->StrokeContainer = GetCurrentStrokesView(timeEquivalentInRecordedSession);
+    inkCanvas->InkPresenter->IsInputEnabled = false;
     if (timeElapsedInReplay.Duration > durationOfRecordedSession.Duration)
     {
         StopReplay();
@@ -225,6 +235,9 @@ InkStroke^ MainPage::GetPartialStroke(InkStroke^ stroke, DateTime time)
     double portion = static_cast<double>(time.UniversalTime - startTime->Value.UniversalTime) / duration->Value.Duration;
     auto count = (int)((points->Size - 1) * portion) + 1;
     auto initialPoints = ref new VectorView<InkPoint^>(begin(points), begin(points) + count);
+    // Pass the attributes of the stroke to stroke builder.
+    auto inkDrawingAttributes = stroke->DrawingAttributes;
+    strokeBuilder->SetDefaultDrawingAttributes(inkDrawingAttributes);
     return strokeBuilder->CreateStrokeFromInkPoints(initialPoints, float3x2::identity());
 }
 
