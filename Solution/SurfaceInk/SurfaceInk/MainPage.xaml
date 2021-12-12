@@ -29,9 +29,10 @@
                               Height="{ThemeResource InkToolbarButtonHeight}"
                               StrokeThickness="2"
                               Stroke="Gray"/>
-                        <!-- This two buttons are for debug only-->
-                        <Button x:Name="ResetButton" Content="Reset" Width="65" Margin="2,0,3,0" Click="OnReset"/>
-                        <Button x:Name="ReplayButton" Content="Replay"  Width="65" Margin="0,0,3,0" Click="OnReplay"/>
+                        <TextBox x:Name="textBox" Width="140" Margin="2" VerticalAlignment="Center"></TextBox>
+                        <Button x:Name="connectButton" Content="Connect" Width="80" Margin="2,0,3,0" Click="OnConnect"/>
+                        <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="40, -1, 0, 0" Foreground="orange">●</TextBlock>
+                        <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" x:Name="scrollViewer" ZoomMode="Enabled" MinZoomFactor="1" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Auto">
                         <Grid x:Name="outputGrid" Height="Auto">
@@ -42,7 +43,7 @@
                 </Grid>
             </ScrollViewer>
 
-            <ProgressBar x:Name="ReplayProgress" Grid.Row="1" Visibility="Collapsed" Foreground="Salmon"/>
+            <!--<ProgressBar x:Name="ReplayProgress" Grid.Row="1" Visibility="Collapsed" Foreground="Salmon"/>-->
         </Grid>
     </Grid>
 </Page>
