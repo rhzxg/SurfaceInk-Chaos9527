@@ -47,13 +47,18 @@ void MainPage::UpdateFrameworkSize() {
 void MainPage::InkPresenter_StrokesCollected(InkPresenter^ sender, InkStrokesCollectedEventArgs^ e)
 {
     // Send strokes to remote server.
-    /*if (isConnected) {
-        strokesToReplay = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
-        const int sz = sizeof(strokesToReplay);
+    strokesToReplay = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
+    /*const int sz = sizeof(strokesToReplay);
+    char msgToSend[sz];
+    memcpy(msgToSend, &strokesToReplay, sz);
+    send(tcpClient.sockfd, msgToSend, sz, 0);*/
+
+    for (InkStroke^ inkStroke : strokesToReplay) {
+        const int sz = sizeof(inkStroke);
         char msgToSend[sz];
-        memcpy(msgToSend, &strokesToReplay, sz);
-        send(TcpClient.sockfd, msgToSend, sz, 0);
-    }*/
+        memcpy(msgToSend, &inkStroke, sz);
+        send(tcpClient.sockfd, msgToSend, sz, 0);
+    }
 }
 
 void SurfaceInk::MainPage::OnConnect()
@@ -69,6 +74,7 @@ void SurfaceInk::MainPage::OnConnect()
         textBlock->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
         textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
         textBlock2->Text = L"Connected to Sever";
+        connectButton->IsEnabled = false;
     }
     else  if (connState == -1) {
         MessageDialog^ msg = ref new MessageDialog("Socket Initialization Failed");
