@@ -40,7 +40,7 @@ int TCPClient::StartTcpConnection(const char* ip)
 	}
 
 	// Connect to server
-	int connfd = connect(sockfd, (sockaddr*)&server, sizeof(server));
+	connfd = connect(sockfd, (sockaddr*)&server, sizeof(server));
 	if (connfd == SOCKET_ERROR) {
 		closesocket(sockfd);
 		return -3;

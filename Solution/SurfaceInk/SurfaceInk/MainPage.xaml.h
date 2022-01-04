@@ -7,6 +7,8 @@
 
 #include "MainPage.g.h"
 
+#include <string>
+
 namespace SurfaceInk
 {
 	/// <summary>
@@ -21,9 +23,14 @@ namespace SurfaceInk
         void UpdateFrameworkSize();
         void InkPresenter_StrokesCollected(Windows::UI::Input::Inking::InkPresenter^ sender, Windows::UI::Input::Inking::InkStrokesCollectedEventArgs^ e);
 		void OnConnect();
-        Windows::Foundation::Collections::IVectorView<Windows::UI::Input::Inking::InkStroke^>^ strokesToReplay;
+		void GetFullPath();
+		int SendStrokes(std::string res);
+        
+		
+		Windows::Foundation::Collections::IVectorView<Windows::UI::Input::Inking::InkStroke^>^ strokesToReplay;
 		
 		bool isConnected = false;
 
+		std::string fullFileName;
     };
 }
