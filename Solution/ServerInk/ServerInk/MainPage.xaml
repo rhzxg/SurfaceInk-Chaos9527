@@ -1,5 +1,5 @@
 ﻿<Page
-    x:Class="SurfaceInk.MainPage"
+    x:Class="ServerInk.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -13,26 +13,20 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            
+
             <ScrollViewer Grid.Row="0" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
                 <Grid VerticalAlignment="Top">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Background="{ThemeResource SystemChromeMediumColor}">
-                        <InkToolbar Name="inkToolBar" TargetInkCanvas="{x:Bind inkCanvas}" Margin="0, 0, 3, 0"/>
-                        <Line Y1="0"
-                              Y2="{ThemeResource InkToolbarButtonHeight}"
-                              HorizontalAlignment="Stretch"
-                              Width="2"
-                              Height="{ThemeResource InkToolbarButtonHeight}"
-                              StrokeThickness="2"
-                              Stroke="Gray"/>
-                        <TextBox x:Name="textBox" Width="140" Margin="2" VerticalAlignment="Center"></TextBox>
-                        <Button x:Name="connectButton" Content="Connect" Width="80" Margin="2,0,3,0" Click="OnConnect"/>
-                        <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="40, -1, 0, 0" Foreground="orange">●</TextBlock>
-                        <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>
+                    <StackPanel Name="stackPanel" Grid.Row="0" Orientation="Horizontal" Height="{ThemeResource InkToolbarButtonHeight}" Background="{ThemeResource SystemChromeMediumColor}">
+                        
+                        <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="10, 0, 0, 0">IP Address: </TextBlock>
+                        <Button x:Name="listenButton" Click="OnLoaded" Width="80" Content="Listen" Margin="20, 0, 3, 0"/>
+                        <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="40, -2, 0, 0" Foreground="orange">●</TextBlock>
+                        <TextBlock x:Name="textBlock3" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>
+
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" x:Name="scrollViewer" ZoomMode="Enabled" MinZoomFactor="1" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Auto">
                         <Grid x:Name="outputGrid" Height="Auto">
@@ -43,7 +37,7 @@
                 </Grid>
             </ScrollViewer>
 
-            <!--<ProgressBar x:Name="ReplayProgress" Grid.Row="1" Visibility="Collapsed" Foreground="Salmon"/>-->
+            <ProgressBar x:Name="ReplayProgress" Grid.Row="1" Visibility="Collapsed" Foreground="Salmon"/>
         </Grid>
     </Grid>
 </Page>

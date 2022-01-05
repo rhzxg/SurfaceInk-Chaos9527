@@ -2,10 +2,10 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Common">
-      <UniqueIdentifier>72bc9049-fc14-4960-8294-de9283df81c3</UniqueIdentifier>
+      <UniqueIdentifier>011c4361-0465-4c1f-b4ff-d65200509af9</UniqueIdentifier>
     </Filter>
     <Filter Include="Assets">
-      <UniqueIdentifier>d8967766-1d11-4f80-8f95-3906cc99864c</UniqueIdentifier>
+      <UniqueIdentifier>4026eb0a-60de-4b34-9daa-a9e66b575c8c</UniqueIdentifier>
       <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
     </Filter>
   </ItemGroup>
@@ -14,11 +14,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="TCPClient.cpp" />
+    <ClCompile Include="TCPServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
-    <ClInclude Include="TCPClient.h" />
+    <ClInclude Include="TCPServer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
