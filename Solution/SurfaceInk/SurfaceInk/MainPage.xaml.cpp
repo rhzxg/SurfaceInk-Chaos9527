@@ -122,8 +122,8 @@ void SurfaceInk::MainPage::GetFullPath()
     //);
     
     folder = ApplicationData::Current->LocalFolder;
-    MessageDialog^ msg = ref new MessageDialog(folder->Path);
-    msg->ShowAsync();
+    //MessageDialog^ msg = ref new MessageDialog(folder->Path);
+    //msg->ShowAsync();
 
     // Cast Platform::String^ to std::string
     std::wstring wsstr(folder->Path->Data());
