@@ -158,7 +158,7 @@ int SurfaceInk::MainPage::SendStrokes(std::string res)
         if ((len = fread(&tcpClient.buffer, 1, n, f)) && len > 0)
         {
             if (isConnected) {
-                send(tcpClient.connfd, tcpClient.buffer, n, 0);
+                send(tcpClient.sockfd, tcpClient.buffer, n, 0);
             }
         }
         fclose(f);
