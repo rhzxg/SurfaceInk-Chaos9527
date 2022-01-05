@@ -129,17 +129,6 @@ void MainPage::ReceiveFrom()
                                     [this, stream]() {
                                         delete stream;
                                         strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
-                                        IVectorView<InkStroke^>^ strokesAlreadyDrawn = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
-                                        for (InkStroke^ stroke : strokesAlreadyDrawn) {
-                                            IBox<DateTime>^ startTime = stroke->StrokeStartedTime;
-                                            IBox<TimeSpan>^ duration = stroke->StrokeDuration;
-                                            if (startTime && duration)
-                                            {
-                                                long long st = startTime->Value.UniversalTime;
-                                                long long dr = duration->Value.Duration;
-                                                strokesSet.insert({ st, dr });
-                                            }
-                                        }
                                         OnReplay();
                                     }
                                 );
@@ -208,7 +197,7 @@ void MainPage::ClearCanvasStrokeCache()
     outputGrid->Children->Clear();
     inkCanvas = ref new Windows::UI::Xaml::Controls::InkCanvas();
     outputGrid->Children->Append(inkCanvas);
-    inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
+    //inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
     // inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
     UpdateFrameworkSize();
 }
@@ -259,12 +248,16 @@ void MainPage::OnReplay()
     {
         IBox<DateTime>^ startTime = stroke->StrokeStartedTime;
         IBox<TimeSpan>^ duration = stroke->StrokeDuration;
-        if (strokesSet.count({ startTime->Value.UniversalTime , duration->Value.Duration })) 
-        {
-            continue;
-        }
         if (startTime && duration)
         {
+            if (strokesSet.count({ startTime->Value.UniversalTime , duration->Value.Duration }))
+            {
+                continue;
+            }
+            else
+            {
+                strokesSet.insert({ startTime->Value.UniversalTime , duration->Value.Duration });
+            }
             if (beginTimeOfRecordedSession.UniversalTime > startTime->Value.UniversalTime)
             {
                 beginTimeOfRecordedSession.UniversalTime = startTime->Value.UniversalTime;
@@ -307,7 +300,7 @@ void MainPage::StopReplay()
     }
 
     // ReplayButton->IsEnabled = true;
-    inkCanvas->InkPresenter->IsInputEnabled = true;
+    // inkCanvas->InkPresenter->IsInputEnabled = true;
     ReplayProgress->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
     // inkToolBar->TargetInkCanvas = inkCanvas;
 }
