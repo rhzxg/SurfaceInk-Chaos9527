@@ -17,7 +17,6 @@ namespace ServerInk
     {
     public:
         MainPage();
-        void p();
     private:
         void OnLoaded(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
         void StartServer();
@@ -27,10 +26,15 @@ namespace ServerInk
         void InkPresenter_StrokesCollected(Windows::UI::Input::Inking::InkPresenter^ sender, Windows::UI::Input::Inking::InkStrokesCollectedEventArgs^ e);
         void OnReset(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
         void OnReplay();
+        void RunDispatcher(int state);
+        void ReceiveFrom();
         void InkReplayTimer_Tick(Platform::Object^ sender, Platform::Object^ e);
 
         void StopReplay();
         void ClearCanvasStrokeCache();
+
+        void StoreStreamToGif(int size);
+
         Windows::UI::Input::Inking::InkStrokeContainer^ GetCurrentStrokesView(Windows::Foundation::DateTime time);
         Windows::UI::Input::Inking::InkStroke^ GetPartialStroke(Windows::UI::Input::Inking::InkStroke^ stroke, Windows::Foundation::DateTime time);
 
@@ -47,8 +51,11 @@ namespace ServerInk
 
         Windows::UI::Input::Inking::InkStrokeBuilder^ strokeBuilder;
         Windows::Foundation::Collections::IVectorView<Windows::UI::Input::Inking::InkStroke^>^ strokesToReplay;
-        Windows::Foundation::Collections::IVectorView<Windows::UI::Input::Inking::InkStroke^>^ strokesToReplayTemp;
-
+        Windows::UI::Xaml::Controls::InkCanvas^ inkCanvasCopy;
         bool isConnected = false;
+
+        MainPage^ rootPage;
+
+        std::string fullFileName;
     };
 }

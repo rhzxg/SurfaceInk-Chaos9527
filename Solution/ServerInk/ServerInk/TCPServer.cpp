@@ -69,13 +69,10 @@ int TCPServer::StartTcpConnection()
 	// Start listening
 	listen(sockfd, 1);
 	listening = true;
-	 //Wait for connection
-	/*int client_sz = sizeof(client);
+	// Wait for connection
+	int client_sz = sizeof(client);
 	connfd = accept(sockfd, (sockaddr*)&client, &client_sz);
-	while (true) {
-
-	}*/
-	//closesocket(sockfd);
+	closesocket(sockfd);
 	return 0;
 }
 
@@ -86,7 +83,7 @@ void TCPServer::waitForConnection() {
 }
 
 int TCPServer::recvFromClient() {
-	ZeroMemory(buffer, MAXRECVSIZE);
+	//memset(buffer, '\0', MAXRECVSIZE);
 	int n = recv(connfd, buffer, MAXRECVSIZE, 0);
 	return n;
 }

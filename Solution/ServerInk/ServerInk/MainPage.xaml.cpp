@@ -8,6 +8,8 @@
 #include <WindowsNumerics.h>
 #include "TCPServer.h"
 #include <ppltasks.h>
+#include <cstdlib>
+
 
 using namespace ServerInk;
 using namespace Platform;
@@ -24,8 +26,12 @@ using namespace Windows::UI::Input::Inking;
 using namespace Windows::UI::Input::Inking::Core;
 using namespace Windows::UI::Popups;
 
+using namespace Windows::ApplicationModel;
+using namespace Windows::ApplicationModel::DataTransfer;
+
 using namespace concurrency;
 
+using namespace Windows::Storage;
 
 TCPServer tcpServer;
 
@@ -40,63 +46,103 @@ MainPage::MainPage()
     const wchar_t* w_char = wid_str.c_str();
     textBlock->Text = ref new Platform::String(w_char);
 
-    // StartServer();
-    tcpServer.StartTcpConnection();
+    // Get full path
+
+    StorageFolder^ folder = ApplicationData::Current->LocalFolder;
+
+    // For debug only
+    MessageDialog^ msg = ref new MessageDialog(folder->Path);
+    msg->ShowAsync();
+
+    // Cast Platform::String^ to std::string
+    std::wstring wsstr(folder->Path->Data());
+    std::string res(wsstr.begin(), wsstr.end());
+    res += "\\strokes.gif";
+    fullFileName = res;
 }
 
-void MainPage::p() {
-    textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
-    textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
-    textBlock3->Text = L"Accepting Connection";
-}
-
-void ServerInk::MainPage::OnLoaded(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+void MainPage::RunDispatcher(int state)
 {
-
-    create_task([]() {
-        tcpServer.waitForConnection();
-        });
-     /*int connState = tcpServer.StartTcpConnection();
-     
-
-     if (tcpServer.listening) {
-         tcpServer.waitForConnection();
-         textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
-         textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
-         textBlock3->Text = L"Accepting Connection";
-     }*/
-    /*if (connState == 0) {
-        isConnected = true;
-        textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
-        textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
-        textBlock3->Text = L"Connected To Client";
+    switch (state) {
+    case 1: {
+        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+            {
+                textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Blue);
+                textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Blue);
+                textBlock3->Text = L"Accepting for connection";
+            }));
+        break;
     }
-    else  if (connState == -1) {
-        MessageDialog^ msg = ref new MessageDialog("Socket Initialization Failed");
-        msg->ShowAsync();
-    }*/
-
-    if (isConnected) {
-        /* while (true) {
-             int bytesRecv = tcpServer.recvFromClient();
-             if (bytesRecv == -1) {
-                 MessageDialog^ msg = ref new MessageDialog("Error occered during receive from client");
-                 msg->ShowAsync();
-                 break;
-             }
-             if (bytesRecv == 0) {
-                 MessageDialog^ msg = ref new MessageDialog("Client disconnected");
-                 msg->ShowAsync();
-                 isConnected = false;
-                 textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-                 textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-                 textBlock3->Text = L"Waiting For Connection";
-                 break;
-             }
-             memcpy(&strokesToReplay, tcpServer.buffer, bytesRecv);
-             OnReplay();
-         }*/
+    case 2: {
+        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+            {
+                textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
+                textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
+                textBlock3->Text = L"Connected To Client";
+                listenButton->IsEnabled = false;
+            }));
+        break;
     }
+    }
+}
+
+void MainPage::ReceiveFrom()
+{
+    
+    while (true) {
+        int bytesRecv = tcpServer.recvFromClient();
+        int a = 1;
+        if (bytesRecv == -1) {
+            Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+                {
+                    MessageDialog^ msg = ref new MessageDialog("Error occered during receiving from client");
+                    msg->ShowAsync();
+                }));
+            break;
+        }
+        if (bytesRecv == 0) {
+            Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+                {
+                    MessageDialog^ msg = ref new MessageDialog("Client disconnected");
+                    msg->ShowAsync();
+                }));
+            isConnected = false;
+            textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+            textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+            textBlock3->Text = L"Waiting For Connection";
+            break;
+        }
+
+        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([&]()
+            {
+                // TODO: cast binary stream to stroke stream
+
+                StoreStreamToGif(bytesRecv);
+
+                //strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
+                //OnReplay();
+            }));
+
+        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+            {
+                MessageDialog^ msg = ref new MessageDialog("Received");
+                msg->ShowAsync();
+            }));
+
+    }
+}
+
+void MainPage::OnLoaded(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
+{
+    // Hand the UI change to main thread by using the message dispatcher.
+    // .then() metheod will be called automatically after the tread returns.
+    create_task([&]() {
+        RunDispatcher(1);
+        tcpServer.StartTcpConnection();
+        }).then([&]() {
+            RunDispatcher(2);
+            ReceiveFrom();
+            });
 }
 
 void MainPage::OnSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
@@ -138,6 +184,22 @@ void MainPage::ClearCanvasStrokeCache()
     UpdateFrameworkSize();
 }
 
+void ServerInk::MainPage::StoreStreamToGif(int size)
+{
+    FILE* f = nullptr;
+    f = fopen(fullFileName.c_str(), "wb");
+
+    if (!f) {
+        MessageDialog^ msg = ref new MessageDialog("Cannot write stroke file");
+        msg->ShowAsync();
+    }
+    else {
+        char c = tcpServer.buffer[10];
+        fwrite(&tcpServer.buffer, 1, size, f);
+    }
+    fclose(f);
+}
+
 DateTime GetCurrentDateTime()
 {
     FILETIME fileTime;
@@ -160,7 +222,6 @@ void MainPage::OnReplay()
     // ReplayButton->IsEnabled = false;
     inkCanvas->InkPresenter->IsInputEnabled = false;
     ClearCanvasStrokeCache();
-
     // Calculate the beginning of the earliest stroke and the end of the latest stroke.
     // This establishes the time period during which the strokes were collected.
     beginTimeOfRecordedSession = DateTime{ MAXINT64 };

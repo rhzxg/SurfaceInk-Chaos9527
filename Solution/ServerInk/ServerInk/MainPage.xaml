@@ -20,11 +20,13 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
-                    <StackPanel Name="stackPanel" Grid.Row="0" Orientation="Horizontal" Height="30" Background="{ThemeResource SystemChromeMediumColor}">
-                        <Button Height="Auto" Width="30" Click="OnLoaded"></Button>
-                        <TextBlock Name="textBlock" VerticalAlignment="Center" Margin="10, 0, 0, 0">IP Address: </TextBlock>
+                    <StackPanel Name="stackPanel" Grid.Row="0" Orientation="Horizontal" Height="{ThemeResource InkToolbarButtonHeight}" Background="{ThemeResource SystemChromeMediumColor}">
+                        
+                        <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="10, 0, 0, 0">IP Address: </TextBlock>
+                        <Button x:Name="listenButton" Click="OnLoaded" Width="80" Content="Listen" Margin="20, 0, 3, 0"/>
                         <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="40, -2, 0, 0" Foreground="orange">●</TextBlock>
                         <TextBlock x:Name="textBlock3" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>
+
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" x:Name="scrollViewer" ZoomMode="Enabled" MinZoomFactor="1" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Auto">
                         <Grid x:Name="outputGrid" Height="Auto">
