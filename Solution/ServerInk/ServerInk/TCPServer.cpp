@@ -43,9 +43,9 @@ int TCPServer::StartTcpConnection()
 	// Return value == -1 : socket error.
 
 	// Initialize a windows socket
-	/*WSAData wsData;
-	WORD ver = MAKEWORD(2, 2);
-	int wsok = WSAStartup(ver, &wsData);*/
+	//WSAData wsData;
+	//WORD ver = MAKEWORD(2, 2);
+	//int wsok = WSAStartup(ver, &wsData);
 
 	if (wsok != 0) {
 		return -1;
@@ -59,7 +59,7 @@ int TCPServer::StartTcpConnection()
 	}
 
 	// Bind the socket to an ip:port
-	/*sockaddr_in server;*/
+	//sockaddr_in server;
 	server.sin_family = AF_INET;
 	server.sin_port = htons(9527);
 	server.sin_addr.S_un.S_addr = INADDR_ANY;
