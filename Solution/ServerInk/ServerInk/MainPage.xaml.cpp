@@ -32,13 +32,15 @@ using namespace Windows::ApplicationModel::DataTransfer;
 using namespace concurrency;
 
 using namespace Windows::Storage;
+using namespace Windows::Storage::Streams;
 
 TCPServer tcpServer;
+StorageFolder^ folder;
 
 MainPage::MainPage()
 {
     InitializeComponent();
-    inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
+    // inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
     
     // Use string to convert char * to Platform::String
     std::string s_str = "IP Address : " + tcpServer.ip;
@@ -47,12 +49,11 @@ MainPage::MainPage()
     textBlock->Text = ref new Platform::String(w_char);
 
     // Get full path
+    folder = ApplicationData::Current->LocalFolder;
 
-    StorageFolder^ folder = ApplicationData::Current->LocalFolder;
-
-    // For debug only
-    MessageDialog^ msg = ref new MessageDialog(folder->Path);
-    msg->ShowAsync();
+    //// For debug only
+    //MessageDialog^ msg = ref new MessageDialog(folder->Path);
+    //msg->ShowAsync();
 
     // Cast Platform::String^ to std::string
     std::wstring wsstr(folder->Path->Data());
@@ -115,19 +116,47 @@ void MainPage::ReceiveFrom()
 
         Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([&]()
             {
-                // TODO: cast binary stream to stroke stream
-
+                // Network stream to .gif file.
                 StoreStreamToGif(bytesRecv);
+
+                // .gif file to stroke stream:
+                create_task(folder->GetFileAsync("strokes.gif")).then(
+                    [this](StorageFile^ storageFile) {
+                        create_task(storageFile->OpenSequentialReadAsync()).then(
+                            [this](IInputStream^ stream) {
+                                inkCanvasCopy = ref new InkCanvas;
+                                create_task(inkCanvasCopy->InkPresenter->StrokeContainer->LoadAsync(stream)).then(
+                                    [this, stream]() {
+                                        delete stream;
+                                        strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
+                                        IVectorView<InkStroke^>^ strokesAlreadyDrawn = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
+                                        for (InkStroke^ stroke : strokesAlreadyDrawn) {
+                                            IBox<DateTime>^ startTime = stroke->StrokeStartedTime;
+                                            IBox<TimeSpan>^ duration = stroke->StrokeDuration;
+                                            if (startTime && duration)
+                                            {
+                                                long long st = startTime->Value.UniversalTime;
+                                                long long dr = duration->Value.Duration;
+                                                strokesSet.insert({ st, dr });
+                                            }
+                                        }
+                                        OnReplay();
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
 
                 //strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
                 //OnReplay();
             }));
 
-        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
-            {
-                MessageDialog^ msg = ref new MessageDialog("Received");
-                msg->ShowAsync();
-            }));
+        //Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+        //    {
+        //        MessageDialog^ msg = ref new MessageDialog("Received");
+        //        msg->ShowAsync();
+        //    }));
 
     }
 }
@@ -230,6 +259,10 @@ void MainPage::OnReplay()
     {
         IBox<DateTime>^ startTime = stroke->StrokeStartedTime;
         IBox<TimeSpan>^ duration = stroke->StrokeDuration;
+        if (strokesSet.count({ startTime->Value.UniversalTime , duration->Value.Duration })) 
+        {
+            continue;
+        }
         if (startTime && duration)
         {
             if (beginTimeOfRecordedSession.UniversalTime > startTime->Value.UniversalTime)

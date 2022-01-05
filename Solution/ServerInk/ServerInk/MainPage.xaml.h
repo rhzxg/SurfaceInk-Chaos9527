@@ -7,6 +7,8 @@
 
 #include "MainPage.g.h"
 #include <string>
+#include <set>
+#include <utility>
 
 namespace ServerInk
 {
@@ -19,11 +21,8 @@ namespace ServerInk
         MainPage();
     private:
         void OnLoaded(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
-        void StartServer();
-        void StreamSocketListener_ConnectionReceived(Windows::Networking::Sockets::StreamSocketListener^ sender, Windows::Networking::Sockets::StreamSocketListenerConnectionReceivedEventArgs^ args);
         void OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
         void UpdateFrameworkSize();
-        void InkPresenter_StrokesCollected(Windows::UI::Input::Inking::InkPresenter^ sender, Windows::UI::Input::Inking::InkStrokesCollectedEventArgs^ e);
         void OnReset(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
         void OnReplay();
         void RunDispatcher(int state);
@@ -57,5 +56,6 @@ namespace ServerInk
         MainPage^ rootPage;
 
         std::string fullFileName;
+        std::set<std::pair<long long, long long>> strokesSet;
     };
 }
