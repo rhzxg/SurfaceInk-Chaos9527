@@ -9,6 +9,7 @@
 #include <string>
 #include <set>
 #include <utility>
+#include <mutex>
 
 namespace ServerInk
 {
@@ -57,5 +58,8 @@ namespace ServerInk
 
         std::string fullFileName;
         std::set<std::pair<long long, long long>> strokesSet;
+
+        // Resource locks:
+        std::mutex fileReadMutex;
     };
 }

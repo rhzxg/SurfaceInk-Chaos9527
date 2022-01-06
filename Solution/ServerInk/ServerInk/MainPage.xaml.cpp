@@ -37,6 +37,7 @@ using namespace Windows::Storage::Streams;
 TCPServer tcpServer;
 StorageFolder^ folder;
 
+
 MainPage::MainPage()
 {
     InitializeComponent();
@@ -71,6 +72,7 @@ void MainPage::RunDispatcher(int state)
                 textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Blue);
                 textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Blue);
                 textBlock3->Text = L"Accepting for connection";
+                listenButton->IsEnabled = false;
             }));
         break;
     }
@@ -80,7 +82,6 @@ void MainPage::RunDispatcher(int state)
                 textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
                 textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
                 textBlock3->Text = L"Connected To Client";
-                listenButton->IsEnabled = false;
             }));
         break;
     }
@@ -108,9 +109,7 @@ void MainPage::ReceiveFrom()
                     msg->ShowAsync();
                 }));
             isConnected = false;
-            textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-            textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-            textBlock3->Text = L"Waiting For Connection";
+            
             break;
         }
 
@@ -126,10 +125,19 @@ void MainPage::ReceiveFrom()
                             [this](IInputStream^ stream) {
                                 inkCanvasCopy = ref new InkCanvas;
                                 create_task(inkCanvasCopy->InkPresenter->StrokeContainer->LoadAsync(stream)).then(
-                                    [this, stream]() {
+                                    [this, stream](task<void> loadTask) {
                                         delete stream;
                                         strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
-                                        OnReplay();
+                                        try
+                                        {
+                                            OnReplay();
+                                        }
+                                        catch (Platform::Exception^ ex)
+                                        {
+                                            // Report any I/O errors.
+                                            MessageDialog^ msg = ref new MessageDialog("I/O error occurred");
+                                            msg->ShowAsync();
+                                        }
                                     }
                                 );
                             }
@@ -204,6 +212,7 @@ void MainPage::ClearCanvasStrokeCache()
 
 void ServerInk::MainPage::StoreStreamToGif(int size)
 {
+    std::lock_guard<std::mutex> lock(fileReadMutex);
     FILE* f = nullptr;
     f = fopen(fullFileName.c_str(), "wb");
 
@@ -237,9 +246,6 @@ void MainPage::OnReplay()
 
     // strokesToReplay = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
 
-    // ReplayButton->IsEnabled = false;
-    inkCanvas->InkPresenter->IsInputEnabled = false;
-    ClearCanvasStrokeCache();
     // Calculate the beginning of the earliest stroke and the end of the latest stroke.
     // This establishes the time period during which the strokes were collected.
     beginTimeOfRecordedSession = DateTime{ MAXINT64 };
@@ -250,6 +256,7 @@ void MainPage::OnReplay()
         IBox<TimeSpan>^ duration = stroke->StrokeDuration;
         if (startTime && duration)
         {
+            // Check if the stroke is already drawn.
             if (strokesSet.count({ startTime->Value.UniversalTime , duration->Value.Duration }))
             {
                 continue;
@@ -258,6 +265,7 @@ void MainPage::OnReplay()
             {
                 strokesSet.insert({ startTime->Value.UniversalTime , duration->Value.Duration });
             }
+
             if (beginTimeOfRecordedSession.UniversalTime > startTime->Value.UniversalTime)
             {
                 beginTimeOfRecordedSession.UniversalTime = startTime->Value.UniversalTime;
@@ -280,6 +288,11 @@ void MainPage::OnReplay()
         ReplayProgress->Visibility = Windows::UI::Xaml::Visibility::Visible;
 
         beginTimeOfReplay = GetCurrentDateTime();
+
+        // ReplayButton->IsEnabled = false;
+        inkCanvas->InkPresenter->IsInputEnabled = false;
+        //ClearCanvasStrokeCache();
+
         inkReplayTimer->Start();
 
         // rootPage->NotifyUser("Replay started.", NotifyType::StatusMessage);

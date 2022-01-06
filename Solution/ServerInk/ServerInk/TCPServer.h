@@ -4,8 +4,7 @@
 #include <string>
 #pragma comment (lib, "ws2_32.lib")
 #pragma warning(disable:4996)
-#define MAXRECVSIZE 32768
-
+#define MAXRECVSIZE 4194304
 #include <ppltasks.h>
 
 
@@ -32,7 +31,7 @@ public:
 	bool listening = false;
 
 	
-	// Up to 32Mb to receive.
+	// Up to 4Mb to receive.
 	char buffer[MAXRECVSIZE];
 };
 
