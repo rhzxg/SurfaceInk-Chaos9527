@@ -2,7 +2,7 @@
 #include <iostream>
 #include <WS2tcpip.h>
 #pragma comment (lib, "ws2_32.lib")
-#define MAXSENDSIZE 32768
+#define MAXSENDSIZE 4194304
 
 
 class TCPClient

@@ -6,8 +6,9 @@
 #pragma once
 
 #include "MainPage.g.h"
-
 #include <string>
+#include <mutex>
+
 
 namespace SurfaceInk
 {
@@ -32,5 +33,8 @@ namespace SurfaceInk
 		bool isConnected = false;
 
 		std::string fullFileName;
+
+		// Resource locks:
+		std::mutex fileWtireMutex;
     };
 }
