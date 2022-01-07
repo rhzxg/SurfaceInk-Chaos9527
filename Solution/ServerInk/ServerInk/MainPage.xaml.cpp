@@ -66,6 +66,18 @@ MainPage::MainPage()
 void MainPage::RunDispatcher(int state)
 {
     switch (state) {
+    case 0: {
+        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+            {
+                textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+                textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+                textBlock3->Text = L"Waitting For Connection";
+                listenButton->IsEnabled = true;
+
+                closesocket(tcpServer.connfd);
+            }));
+        break;
+    }
     case 1: {
         Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
             {
@@ -105,6 +117,7 @@ void MainPage::ReceiveFrom()
         if (bytesRecv == 0) {
             Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
                 {
+                    RunDispatcher(0);
                     MessageDialog^ msg = ref new MessageDialog("Client disconnected");
                     msg->ShowAsync();
                 }));

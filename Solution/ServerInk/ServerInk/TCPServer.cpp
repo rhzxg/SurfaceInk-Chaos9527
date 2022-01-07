@@ -4,27 +4,6 @@
 using namespace concurrency;
 
 
-TCPServer::TCPServer()
-{
-    WSADATA wsaData;
-    char name[255];
-    char* ipaddr;
-    PHOSTENT hostinfo;
-
-    if (WSAStartup(MAKEWORD(2, 0), &wsaData) == 0)
-    {
-        if (gethostname(name, sizeof(name)) == 0)
-        {
-            if ((hostinfo = gethostbyname(name)) != NULL)
-            {
-                ipaddr = inet_ntoa(*(struct in_addr*)*hostinfo->h_addr_list);
-                ip = ipaddr;
-            }
-        }
-        WSACleanup();
-    }
-}
-
 TCPServer::~TCPServer()
 {
 	CleanUp();
@@ -46,6 +25,23 @@ int TCPServer::StartTcpConnection()
 	//WSAData wsData;
 	//WORD ver = MAKEWORD(2, 2);
 	//int wsok = WSAStartup(ver, &wsData);
+	WSADATA wsaData;
+	char name[255];
+	char* ipaddr;
+	PHOSTENT hostinfo;
+
+	if (WSAStartup(MAKEWORD(2, 0), &wsaData) == 0)
+	{
+		if (gethostname(name, sizeof(name)) == 0)
+		{
+			if ((hostinfo = gethostbyname(name)) != NULL)
+			{
+				ipaddr = inet_ntoa(*(struct in_addr*)*hostinfo->h_addr_list);
+				ip = ipaddr;
+			}
+		}
+		WSACleanup();
+	}
 
 	if (wsok != 0) {
 		return -1;
@@ -74,12 +70,6 @@ int TCPServer::StartTcpConnection()
 	connfd = accept(sockfd, (sockaddr*)&client, &client_sz);
 	closesocket(sockfd);
 	return 0;
-}
-
-void TCPServer::waitForConnection() {
-	int client_sz = sizeof(client);
-	connfd = accept(sockfd, (sockaddr*)&client, &client_sz);
-	//closesocket(sockfd);
 }
 
 int TCPServer::recvFromClient() {

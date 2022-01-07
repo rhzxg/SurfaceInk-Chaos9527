@@ -11,10 +11,9 @@
 class TCPServer
 {
 public:
-	TCPServer();
+	TCPServer() = default;
 	~TCPServer();
 	int StartTcpConnection();
-	void waitForConnection();
 	int recvFromClient();
 	void CleanUp();
 	std::string ip;
