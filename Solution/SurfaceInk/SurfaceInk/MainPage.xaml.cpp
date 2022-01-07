@@ -134,6 +134,7 @@ void SurfaceInk::MainPage::GetFullPath()
 
 int SurfaceInk::MainPage::SendStrokes(std::string res)
 {
+    std::lock_guard<std::mutex> lock(fileWtireMutex);
     // UWP applications can only access files in its local folder.
     FILE* f = nullptr;
     f = fopen(res.c_str(), "rb");
