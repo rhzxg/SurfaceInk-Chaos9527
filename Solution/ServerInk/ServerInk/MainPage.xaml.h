@@ -60,6 +60,6 @@ namespace ServerInk
         std::set<std::pair<long long, long long>> strokesSet;
 
         // Resource locks:
-        std::mutex fileReadMutex;
+        std::mutex fileWriteMutex;
     };
 }
