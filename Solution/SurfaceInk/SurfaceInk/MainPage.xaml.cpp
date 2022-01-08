@@ -121,9 +121,9 @@ void SurfaceInk::MainPage::GetFullPath()
     //    }
     //);
     
-    folder = ApplicationData::Current->LocalFolder;
-    MessageDialog^ msg = ref new MessageDialog(folder->Path);
-    msg->ShowAsync();
+    //folder = ApplicationData::Current->LocalFolder;
+    //MessageDialog^ msg = ref new MessageDialog(folder->Path);
+    //msg->ShowAsync();
 
     // Cast Platform::String^ to std::string
     std::wstring wsstr(folder->Path->Data());
@@ -159,7 +159,7 @@ void SurfaceInk::MainPage::RefreshUIState()
 
 int SurfaceInk::MainPage::SendStrokes(std::string res)
 {
-    std::lock_guard<std::mutex> lock(fileWtireMutex);
+    std::lock_guard<std::mutex> lock(fileReadMutex);
     // UWP applications can only access files in its local folder.
     FILE* f = nullptr;
     f = fopen(res.c_str(), "rb");

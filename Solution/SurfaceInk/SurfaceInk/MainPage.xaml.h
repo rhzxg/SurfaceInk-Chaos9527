@@ -36,6 +36,6 @@ namespace SurfaceInk
 		std::string fullFileName;
 
 		// Resource locks:
-		std::mutex fileWtireMutex;
+		std::mutex fileReadMutex;
     };
 }
