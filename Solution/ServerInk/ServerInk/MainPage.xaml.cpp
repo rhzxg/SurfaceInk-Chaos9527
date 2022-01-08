@@ -175,7 +175,7 @@ void MainPage::ReceiveFrom()
 void MainPage::OnLoaded(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e)
 {
     // Hand the UI change to main thread by using the message dispatcher.
-    // .then() metheod will be called automatically after the tread returns.
+    // .then() metheod will be called automatically after the thread returns.
     create_task([&]() {
         RunDispatcher(1);
         tcpServer.StartTcpConnection();
@@ -226,7 +226,7 @@ void MainPage::ClearCanvasStrokeCache()
 
 void ServerInk::MainPage::StoreStreamToGif(int size)
 {
-    std::lock_guard<std::mutex> lock(fileReadMutex);
+    std::lock_guard<std::mutex> lock(fileWriteMutex);
     FILE* f = nullptr;
     f = fopen(fullFileName.c_str(), "wb");
 
