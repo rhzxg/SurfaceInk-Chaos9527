@@ -132,6 +132,31 @@ void SurfaceInk::MainPage::GetFullPath()
     fullFileName = res;
 }
 
+void SurfaceInk::MainPage::RefreshUIState()
+{
+    Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+        {
+            textBlock->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+            textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+            textBlock2->Text = L"Waitting For Connection";
+            connectButton->IsEnabled = true;
+
+            closesocket(tcpClient.connfd);
+            isConnected = false;
+
+            MessageDialog^ msg = ref new MessageDialog("Server disconnected");
+            msg->ShowAsync();
+
+            outputGrid->Children->Clear();
+            inkCanvas = ref new Windows::UI::Xaml::Controls::InkCanvas();
+            inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
+            inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
+            inkToolBar->TargetInkCanvas = inkCanvas;
+            outputGrid->Children->Append(inkCanvas);
+            UpdateFrameworkSize();
+        }));
+}
+
 int SurfaceInk::MainPage::SendStrokes(std::string res)
 {
     std::lock_guard<std::mutex> lock(fileWtireMutex);
@@ -159,7 +184,11 @@ int SurfaceInk::MainPage::SendStrokes(std::string res)
         if ((len = fread(&tcpClient.buffer, 1, n, f)) && len > 0)
         {
             if (isConnected) {
-                send(tcpClient.sockfd, tcpClient.buffer, n, 0);
+                int socketState = send(tcpClient.sockfd, tcpClient.buffer, n, 0);
+                if (socketState == SOCKET_ERROR)
+                {
+                    RefreshUIState();
+                }
             }
         }
         fclose(f);

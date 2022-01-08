@@ -25,6 +25,7 @@ namespace SurfaceInk
         void InkPresenter_StrokesCollected(Windows::UI::Input::Inking::InkPresenter^ sender, Windows::UI::Input::Inking::InkStrokesCollectedEventArgs^ e);
 		void OnConnect();
 		void GetFullPath();
+		void RefreshUIState();
 		int SendStrokes(std::string res);
         
 		
