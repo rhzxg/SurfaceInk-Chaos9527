@@ -75,6 +75,7 @@ void MainPage::RunDispatcher(int state)
                 listenButton->IsEnabled = true;
 
                 closesocket(tcpServer.connfd);
+                ClearCanvasStrokeCache();
             }));
         break;
     }

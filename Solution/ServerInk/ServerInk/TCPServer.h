@@ -11,7 +11,7 @@
 class TCPServer
 {
 public:
-	TCPServer() = default;
+	TCPServer();
 	~TCPServer();
 	int StartTcpConnection();
 	int recvFromClient();
