@@ -121,7 +121,7 @@ void SurfaceInk::MainPage::GetFullPath()
     //    }
     //);
     
-    //folder = ApplicationData::Current->LocalFolder;
+    folder = ApplicationData::Current->LocalFolder;
     //MessageDialog^ msg = ref new MessageDialog(folder->Path);
     //msg->ShowAsync();
 
