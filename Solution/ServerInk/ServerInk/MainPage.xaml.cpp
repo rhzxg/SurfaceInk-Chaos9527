@@ -37,6 +37,7 @@ using namespace Windows::Storage::Streams;
 TCPServer tcpServer;
 StorageFolder^ folder;
 
+
 MainPage::MainPage()
 {
     InitializeComponent();
@@ -65,12 +66,26 @@ MainPage::MainPage()
 void MainPage::RunDispatcher(int state)
 {
     switch (state) {
+    case 0: {
+        Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
+            {
+                textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+                textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
+                textBlock3->Text = L"Waitting For Connection";
+                listenButton->IsEnabled = true;
+
+                closesocket(tcpServer.connfd);
+                ClearCanvasStrokeCache();
+            }));
+        break;
+    }
     case 1: {
         Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
             {
                 textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Blue);
                 textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Blue);
                 textBlock3->Text = L"Accepting for connection";
+                listenButton->IsEnabled = false;
             }));
         break;
     }
@@ -80,7 +95,6 @@ void MainPage::RunDispatcher(int state)
                 textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
                 textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Green);
                 textBlock3->Text = L"Connected To Client";
-                listenButton->IsEnabled = false;
             }));
         break;
     }
@@ -104,13 +118,12 @@ void MainPage::ReceiveFrom()
         if (bytesRecv == 0) {
             Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
                 {
+                    RunDispatcher(0);
                     MessageDialog^ msg = ref new MessageDialog("Client disconnected");
                     msg->ShowAsync();
                 }));
             isConnected = false;
-            textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-            textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-            textBlock3->Text = L"Waiting For Connection";
+            
             break;
         }
 
@@ -126,21 +139,19 @@ void MainPage::ReceiveFrom()
                             [this](IInputStream^ stream) {
                                 inkCanvasCopy = ref new InkCanvas;
                                 create_task(inkCanvasCopy->InkPresenter->StrokeContainer->LoadAsync(stream)).then(
-                                    [this, stream]() {
+                                    [this, stream](task<void> loadTask) {
                                         delete stream;
                                         strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
-                                        IVectorView<InkStroke^>^ strokesAlreadyDrawn = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
-                                        for (InkStroke^ stroke : strokesAlreadyDrawn) {
-                                            IBox<DateTime>^ startTime = stroke->StrokeStartedTime;
-                                            IBox<TimeSpan>^ duration = stroke->StrokeDuration;
-                                            if (startTime && duration)
-                                            {
-                                                long long st = startTime->Value.UniversalTime;
-                                                long long dr = duration->Value.Duration;
-                                                strokesSet.insert({ st, dr });
-                                            }
+                                        try
+                                        {
+                                            OnReplay();
                                         }
-                                        OnReplay();
+                                        catch (Platform::Exception^ ex)
+                                        {
+                                            // Report any I/O errors.
+                                            MessageDialog^ msg = ref new MessageDialog("I/O error occurred");
+                                            msg->ShowAsync();
+                                        }
                                     }
                                 );
                             }
@@ -208,13 +219,14 @@ void MainPage::ClearCanvasStrokeCache()
     outputGrid->Children->Clear();
     inkCanvas = ref new Windows::UI::Xaml::Controls::InkCanvas();
     outputGrid->Children->Append(inkCanvas);
-    inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
+    //inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
     // inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
     UpdateFrameworkSize();
 }
 
 void ServerInk::MainPage::StoreStreamToGif(int size)
 {
+    std::lock_guard<std::mutex> lock(fileReadMutex);
     FILE* f = nullptr;
     f = fopen(fullFileName.c_str(), "wb");
 
@@ -248,9 +260,6 @@ void MainPage::OnReplay()
 
     // strokesToReplay = inkCanvas->InkPresenter->StrokeContainer->GetStrokes();
 
-    // ReplayButton->IsEnabled = false;
-    inkCanvas->InkPresenter->IsInputEnabled = false;
-    ClearCanvasStrokeCache();
     // Calculate the beginning of the earliest stroke and the end of the latest stroke.
     // This establishes the time period during which the strokes were collected.
     beginTimeOfRecordedSession = DateTime{ MAXINT64 };
@@ -259,12 +268,18 @@ void MainPage::OnReplay()
     {
         IBox<DateTime>^ startTime = stroke->StrokeStartedTime;
         IBox<TimeSpan>^ duration = stroke->StrokeDuration;
-        if (strokesSet.count({ startTime->Value.UniversalTime , duration->Value.Duration })) 
-        {
-            continue;
-        }
         if (startTime && duration)
         {
+            // Check if the stroke is already drawn.
+            if (strokesSet.count({ startTime->Value.UniversalTime , duration->Value.Duration }))
+            {
+                continue;
+            }
+            else
+            {
+                strokesSet.insert({ startTime->Value.UniversalTime , duration->Value.Duration });
+            }
+
             if (beginTimeOfRecordedSession.UniversalTime > startTime->Value.UniversalTime)
             {
                 beginTimeOfRecordedSession.UniversalTime = startTime->Value.UniversalTime;
@@ -287,6 +302,11 @@ void MainPage::OnReplay()
         ReplayProgress->Visibility = Windows::UI::Xaml::Visibility::Visible;
 
         beginTimeOfReplay = GetCurrentDateTime();
+
+        // ReplayButton->IsEnabled = false;
+        inkCanvas->InkPresenter->IsInputEnabled = false;
+        //ClearCanvasStrokeCache();
+
         inkReplayTimer->Start();
 
         // rootPage->NotifyUser("Replay started.", NotifyType::StatusMessage);
@@ -307,7 +327,7 @@ void MainPage::StopReplay()
     }
 
     // ReplayButton->IsEnabled = true;
-    inkCanvas->InkPresenter->IsInputEnabled = true;
+    // inkCanvas->InkPresenter->IsInputEnabled = true;
     ReplayProgress->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
     // inkToolBar->TargetInkCanvas = inkCanvas;
 }

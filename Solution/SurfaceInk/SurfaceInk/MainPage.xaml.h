@@ -6,8 +6,9 @@
 #pragma once
 
 #include "MainPage.g.h"
-
 #include <string>
+#include <mutex>
+
 
 namespace SurfaceInk
 {
@@ -24,6 +25,7 @@ namespace SurfaceInk
         void InkPresenter_StrokesCollected(Windows::UI::Input::Inking::InkPresenter^ sender, Windows::UI::Input::Inking::InkStrokesCollectedEventArgs^ e);
 		void OnConnect();
 		void GetFullPath();
+		void RefreshUIState();
 		int SendStrokes(std::string res);
         
 		
@@ -32,5 +34,8 @@ namespace SurfaceInk
 		bool isConnected = false;
 
 		std::string fullFileName;
+
+		// Resource locks:
+		std::mutex fileWtireMutex;
     };
 }
