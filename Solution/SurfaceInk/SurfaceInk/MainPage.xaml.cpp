@@ -27,6 +27,8 @@ using namespace Windows::UI::Input::Inking::Core;
 using namespace Windows::UI::Popups;
 using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
+using namespace Windows::Networking;
+using namespace Windows::Networking::Connectivity;
 
 
 TCPClient tcpClient;
@@ -38,6 +40,12 @@ MainPage::MainPage()
 	inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
 	inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
     GetFullPath();
+    this->localHostItems = ref new Vector<LocalHostItem^>();
+}
+
+void SurfaceInk::MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e)
+{
+    InitComboBox();
 }
 
 void MainPage::OnSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
@@ -80,7 +88,8 @@ void MainPage::InkPresenter_StrokesCollected(InkPresenter^ sender, InkStrokesCol
 void SurfaceInk::MainPage::OnConnect()
 {
     // Use string to convert Platform::String to char *.
-    std::wstring wsstr(textBox->Text->Data());
+    auto a = static_cast<LocalHostItem^>(AdapterList->SelectedItem);
+    std::wstring wsstr(a->DisplayString->Data());
     std::string res(wsstr.begin(), wsstr.end());
 
     // Check connection state.
@@ -99,7 +108,7 @@ void SurfaceInk::MainPage::OnConnect()
     else if (connState == -2) {
         MessageDialog^ msg = ref new MessageDialog("Invalid IPv4 Address");
         msg->ShowAsync();
-        textBox->Text = L"";
+        //textBox->Text = L"";
     }
     else if (connState == -3) {
         MessageDialog^ msg = ref new MessageDialog("Connection Falied");
@@ -130,6 +139,21 @@ void SurfaceInk::MainPage::GetFullPath()
     std::string res(wsstr.begin(), wsstr.end());
     res += "\\strokes.gif";
     fullFileName = res;
+}
+
+void SurfaceInk::MainPage::InitComboBox()
+{
+    localHostItems->Clear();
+    AdapterList->ItemsSource = localHostItems;
+    AdapterList->DisplayMemberPath = "DisplayString";
+    for (HostName^ localHostInfo : NetworkInformation::GetHostNames())
+    {
+        if (localHostInfo->IPInformation != nullptr)
+        {
+            LocalHostItem^ adapterItem = ref new LocalHostItem(localHostInfo);
+            localHostItems->Append(adapterItem);
+        }
+    }
 }
 
 void SurfaceInk::MainPage::RefreshUIState()
@@ -194,4 +218,15 @@ int SurfaceInk::MainPage::SendStrokes(std::string res)
         fclose(f);
     }
     return 0;
+}
+
+SurfaceInk::LocalHostItem::LocalHostItem(Windows::Networking::HostName^ localHostName)
+{
+    if (localHostName == nullptr)
+    {
+        throw ref new InvalidArgumentException("localHostName cannot be null");
+    }
+
+    this->localHost = localHostName;
+    this->displayString = localHostName->DisplayName;
 }
