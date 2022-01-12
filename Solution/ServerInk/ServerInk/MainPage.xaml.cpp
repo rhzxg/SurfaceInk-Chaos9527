@@ -176,13 +176,16 @@ void MainPage::OnLoaded(Platform::Object^ sender, Windows::UI::Xaml::SizeChanged
 {
     // Hand the UI change to main thread by using the message dispatcher.
     // .then() metheod will be called automatically after the thread returns.
-    create_task([&]() {
-        RunDispatcher(1);
-        tcpServer.StartTcpConnection();
-        }).then([&]() {
-            RunDispatcher(2);
-            ReceiveFrom();
-            });
+    create_task(
+        [&]() {
+            RunDispatcher(1);
+            tcpServer.StartTcpConnection();
+        }).then(
+            [&]() {
+                RunDispatcher(2);
+                ReceiveFrom();
+            }
+        );
 }
 
 void MainPage::OnSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
