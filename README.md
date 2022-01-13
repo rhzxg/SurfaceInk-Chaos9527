@@ -6,6 +6,6 @@ Transmit Windows Ink from your Surface to another device via LAN.
 
 ## Attention:
 
-Windows 10 users should turn the WiFi access of this app on manually in the control panel.
+Windows 10 users should turn the WiFi access of this app on manually in the control panel if connection error occur constantly.
 
-Win10用户需要在控制面板中手动打开此软件的Wifi访问权限。
+Win10用户如果持续连接失败则需要在控制面板中手动打开此软件的Wifi访问权限。
