@@ -36,8 +36,6 @@ namespace SurfaceInk
 	{
 	public:
 		MainPage();
-	protected:
-		virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 	private:
 		void OnSizeChanged(Platform::Object^ sender, Windows::UI::Xaml::SizeChangedEventArgs^ e);
         void UpdateFrameworkSize();

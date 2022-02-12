@@ -29,7 +29,7 @@
                               Height="{ThemeResource InkToolbarButtonHeight}"
                               StrokeThickness="2"
                               Stroke="Gray"/>
-                        <ComboBox x:Name="AdapterList" AllowDrop="True" IsEnabled="True" Width="138 " Margin="2" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="AdapterList" IsEditable="True"  AllowDrop="True" IsEnabled="True" Width="170 " Margin="2" VerticalAlignment="Center"/>
                         <Button x:Name="connectButton" Content="Connect" Width="80" Margin="2,0,3,0" Click="OnConnect"/>
                         <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="40, -1, 0, 0" Foreground="orange">●</TextBlock>
                         <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>

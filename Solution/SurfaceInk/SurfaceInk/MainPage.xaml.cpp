@@ -41,10 +41,6 @@ MainPage::MainPage()
 	inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
     GetFullPath();
     this->localHostItems = ref new Vector<LocalHostItem^>();
-}
-
-void SurfaceInk::MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e)
-{
     InitComboBox();
 }
 
@@ -88,9 +84,20 @@ void MainPage::InkPresenter_StrokesCollected(InkPresenter^ sender, InkStrokesCol
 void SurfaceInk::MainPage::OnConnect()
 {
     // Use string to convert Platform::String to char *.
-    auto a = static_cast<LocalHostItem^>(AdapterList->SelectedItem);
-    std::wstring wsstr(a->DisplayString->Data());
-    std::string res(wsstr.begin(), wsstr.end());
+    std::string res;
+    if (AdapterList->SelectedIndex != -1)
+    {
+        auto a = static_cast<LocalHostItem^>(AdapterList->SelectedItem);
+        std::wstring wsstr(a->DisplayString->Data());
+        res = std::string(wsstr.begin(), wsstr.end());
+    }
+    else
+    {
+        auto a = AdapterList->SelectedValue->ToString();
+        std::wstring wsstr(a->Data());
+        res = std::string(wsstr.begin(), wsstr.end());
+    }
+    
 
     // Check connection state.
     int connState = tcpClient.StartTcpConnection(res.c_str());
@@ -150,6 +157,8 @@ void SurfaceInk::MainPage::InitComboBox()
     {
         if (localHostInfo->IPInformation != nullptr)
         {
+            if (localHostInfo->DisplayName == L"192.168.1.1") continue;
+            if (localHostInfo->DisplayName->Length() > 15) continue;
             LocalHostItem^ adapterItem = ref new LocalHostItem(localHostInfo);
             localHostItems->Append(adapterItem);
         }
