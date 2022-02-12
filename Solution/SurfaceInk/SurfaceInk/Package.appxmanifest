@@ -9,14 +9,14 @@
 
   <Identity
     Name="3aad244a-5063-4a86-bca5-c3b0cf33be0e"
-    Publisher="CN=q2461"
+    Publisher="CN=CodingDogzxg"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="3aad244a-5063-4a86-bca5-c3b0cf33be0e" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>SurfaceInk</DisplayName>
-    <PublisherDisplayName>q2461</PublisherDisplayName>
+    <PublisherDisplayName>CodingDogzxg</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
