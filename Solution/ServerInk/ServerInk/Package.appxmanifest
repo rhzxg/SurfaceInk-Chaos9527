@@ -8,14 +8,14 @@
 
   <Identity
     Name="6c0d11fe-7f15-4d92-aa64-439efdb97daf"
-    Publisher="CN=q2461"
-    Version="1.0.0.0" />
+    Publisher="CN=CodingDogzxg"
+    Version="1.0.2.0" />
 
   <mp:PhoneIdentity PhoneProductId="6c0d11fe-7f15-4d92-aa64-439efdb97daf" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>ServerInk</DisplayName>
-    <PublisherDisplayName>q2461</PublisherDisplayName>
+    <PublisherDisplayName>CodingDogzxg</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
