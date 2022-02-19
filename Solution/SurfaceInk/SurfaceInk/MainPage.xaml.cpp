@@ -50,10 +50,13 @@ void MainPage::OnSizeChanged(Object^ sender, SizeChangedEventArgs^ e)
 }
 
 void MainPage::UpdateFrameworkSize() {
-    outputGrid->Width = RootGrid->ActualWidth;
-    outputGrid->Height = RootGrid->ActualHeight - inkToolBar->ActualHeight; // - ReplayProgress->ActualHeight
-    inkCanvas->Width = RootGrid->ActualWidth;
-    inkCanvas->Height = RootGrid->ActualHeight - inkToolBar->ActualHeight; // - ReplayProgress->ActualHeight
+    //outputGrid->Width = RootGrid->ActualWidth;
+    //outputGrid->Height = RootGrid->ActualHeight - inkToolBar->ActualHeight; // - ReplayProgress->ActualHeight
+    //inkCanvas->Width = RootGrid->ActualWidth;
+    //inkCanvas->Height = RootGrid->ActualHeight - inkToolBar->ActualHeight; // - ReplayProgress->ActualHeight
+
+    inkCanvas->Width = Window::Current->Bounds.Width * 2;
+    inkCanvas->Height = Window::Current->Bounds.Height * 2;
 }
 
 void MainPage::InkPresenter_StrokesCollected(InkPresenter^ sender, InkStrokesCollectedEventArgs^ e)

@@ -10,39 +10,42 @@
     <Grid Background="White">
         <Grid x:Name="RootGrid" Margin="12,10,12,12">
             <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
-            <ScrollViewer Grid.Row="0" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Auto">
-                <Grid VerticalAlignment="Top">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Background="{ThemeResource SystemChromeMediumColor}">
-                        <InkToolbar Name="inkToolBar" TargetInkCanvas="{x:Bind inkCanvas}" Margin="0, 0, 3, 0"/>
-                        <Line Y1="0"
-                              Y2="{ThemeResource InkToolbarButtonHeight}"
-                              HorizontalAlignment="Stretch"
-                              Width="2"
-                              Height="{ThemeResource InkToolbarButtonHeight}"
-                              StrokeThickness="2"
-                              Stroke="Gray"/>
-                        <ComboBox x:Name="AdapterList" IsEditable="True"  AllowDrop="True" IsEnabled="True" Width="170 " Margin="2" VerticalAlignment="Center"/>
-                        <Button x:Name="connectButton" Content="Connect" Width="80" Margin="2,0,3,0" Click="OnConnect"/>
-                        <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="40, -1, 0, 0" Foreground="orange">●</TextBlock>
-                        <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>
-                    </StackPanel>
-                    <ScrollViewer Grid.Row="1" x:Name="scrollViewer" ZoomMode="Enabled" MinZoomFactor="1" VerticalScrollMode="Enabled" VerticalScrollBarVisibility="Auto" HorizontalScrollMode="Enabled" HorizontalScrollBarVisibility="Auto">
-                        <Grid x:Name="outputGrid" Height="Auto">
-                            <!-- Inking area -->
-                            <InkCanvas x:Name="inkCanvas" Height="Auto"/>
-                        </Grid>
-                    </ScrollViewer>
+
+            <StackPanel Grid.Row="0" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch"
+                        Background="{ThemeResource SystemChromeMediumColor}">
+                <InkToolbar Name="inkToolBar" TargetInkCanvas="{x:Bind inkCanvas}" Margin="0, 0, 3, 0"/>
+                <Line Y1="0"
+                            Y2="{ThemeResource InkToolbarButtonHeight}"
+                            HorizontalAlignment="Stretch"
+                            Width="2"
+                            Height="{ThemeResource InkToolbarButtonHeight}"
+                            StrokeThickness="2"
+                            Stroke="Gray"/>
+                <ComboBox x:Name="AdapterList" IsEditable="True"  AllowDrop="True" IsEnabled="True" Width="170 " Margin="2" VerticalAlignment="Center"/>
+                <Button x:Name="connectButton" Content="Connect" Width="80" Margin="2,0,3,0" Click="OnConnect"/>
+                <TextBlock x:Name="textBlock" VerticalAlignment="Center" Margin="40, -1, 0, 0" Foreground="orange">●</TextBlock>
+                <TextBlock x:Name="textBlock2" VerticalAlignment="Center" Margin="10, 0, 0, 0" Foreground="orange">Wating For Connection</TextBlock>
+            </StackPanel>
+            <ScrollViewer Grid.Row="1" 
+                          x:Name="scrollViewer" 
+                          ZoomMode="Enabled" 
+                          MinZoomFactor="1" 
+                          MaxZoomFactor="6"
+                          VerticalScrollMode="Enabled" 
+                          VerticalScrollBarVisibility="Visible" 
+                          HorizontalScrollMode="Enabled" 
+                          HorizontalScrollBarVisibility="Visible">
+                <Grid x:Name="outputGrid">
+                    <!-- Inking area -->
+                    <InkCanvas x:Name="inkCanvas"/>
                 </Grid>
             </ScrollViewer>
-
             <!--<ProgressBar x:Name="ReplayProgress" Grid.Row="1" Visibility="Collapsed" Foreground="Salmon"/>-->
         </Grid>
     </Grid>
