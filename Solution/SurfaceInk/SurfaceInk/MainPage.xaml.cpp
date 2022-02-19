@@ -37,7 +37,8 @@ StorageFolder^ folder;
 MainPage::MainPage()
 {
 	InitializeComponent();
-	inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen | CoreInputDeviceTypes::Touch;
+    // To enable two-finger dragging functionality, touch inputting should be disabled.
+	inkCanvas->InkPresenter->InputDeviceTypes = CoreInputDeviceTypes::Mouse | CoreInputDeviceTypes::Pen /*| CoreInputDeviceTypes::Touch*/;
 	inkCanvas->InkPresenter->StrokesCollected += ref new TypedEventHandler<InkPresenter^, InkStrokesCollectedEventArgs^>(this, &MainPage::InkPresenter_StrokesCollected);
     GetFullPath();
     this->localHostItems = ref new Vector<LocalHostItem^>();
