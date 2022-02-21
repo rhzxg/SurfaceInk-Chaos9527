@@ -9,10 +9,10 @@ TCPClient::~TCPClient()
 
 int TCPClient::StartTcpConnection(const char* ip)
 {
-	// Return value == 0  : connection succeed
-	//		  value == -1 : socket initialization falied
+	// Return value == 0  : connection succeeded
+	//		  value == -1 : socket initialization failed
 	//		  value == -2 : invalid ipv4 address
-	//		  value == -3 : connection falied
+	//		  value == -3 : connection failed
 
 	// Initialize Windows socket.
 	WSAData wsData;
