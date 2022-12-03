@@ -53,8 +53,8 @@ MainPage::MainPage()
     folder = ApplicationData::Current->LocalFolder;
 
     //// For debug only
-    //MessageDialog^ msg = ref new MessageDialog(folder->Path);
-    //msg->ShowAsync();
+    MessageDialog^ msg = ref new MessageDialog(folder->Path);
+    msg->ShowAsync();
 
     // Cast Platform::String^ to std::string
     std::wstring wsstr(folder->Path->Data());
@@ -71,7 +71,7 @@ void MainPage::RunDispatcher(int state)
             {
                 textBlock2->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
                 textBlock3->Foreground = ref new SolidColorBrush(Windows::UI::Colors::Orange);
-                textBlock3->Text = L"Waitting For Connection";
+                textBlock3->Text = L"Waiting For Connection";
                 listenButton->IsEnabled = true;
 
                 closesocket(tcpServer.connfd);
@@ -106,11 +106,10 @@ void MainPage::ReceiveFrom()
     
     while (true) {
         int bytesRecv = tcpServer.recvFromClient();
-        int a = 1;
         if (bytesRecv == -1) {
             Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([this]()
                 {
-                    MessageDialog^ msg = ref new MessageDialog("Error occered during receiving from client");
+                    MessageDialog^ msg = ref new MessageDialog("Error occurred during receiving from client");
                     msg->ShowAsync();
                 }));
             break;
@@ -130,34 +129,61 @@ void MainPage::ReceiveFrom()
         Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([&]()
             {
                 // Network stream to .gif file.
-                StoreStreamToGif(bytesRecv);
+                try
+                {
+					StoreStreamToGif(bytesRecv);
+                }
+                catch (const std::exception&)
+                {
 
+                }
                 // .gif file to stroke stream:
-                create_task(folder->GetFileAsync("strokes.gif")).then(
-                    [this](StorageFile^ storageFile) {
-                        create_task(storageFile->OpenSequentialReadAsync()).then(
-                            [this](IInputStream^ stream) {
-                                inkCanvasCopy = ref new InkCanvas;
-                                create_task(inkCanvasCopy->InkPresenter->StrokeContainer->LoadAsync(stream)).then(
-                                    [this, stream](task<void> loadTask) {
-                                        delete stream;
-                                        strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
-                                        try
-                                        {
-                                            OnReplay();
-                                        }
-                                        catch (Platform::Exception^ ex)
-                                        {
-                                            // Report any I/O errors.
-                                            MessageDialog^ msg = ref new MessageDialog("I/O error occurred");
-                                            msg->ShowAsync();
-                                        }
-                                    }
-                                );
-                            }
-                        );
-                    }
-                );
+                try
+                {
+					create_task(folder->GetFileAsync("strokes.gif")).then(
+						[this](StorageFile^ storageFile) {
+							try
+							{
+								create_task(storageFile->OpenSequentialReadAsync()).then(
+									[this](IInputStream^ stream) {
+										inkCanvasCopy = ref new InkCanvas;
+										try
+										{
+											create_task(inkCanvasCopy->InkPresenter->StrokeContainer->LoadAsync(stream)).then(
+												[this, stream](task<void> loadTask) {
+													delete stream;
+													strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
+													try
+													{
+														OnReplay();
+													}
+													catch (Platform::Exception^ ex)
+													{
+														// Report any I/O errors.
+														MessageDialog^ msg = ref new MessageDialog("I/O error occurred");
+														msg->ShowAsync();
+													}
+												}
+											);
+										}
+										catch (Platform::Exception^ ex)
+										{
+
+										}
+									}
+								);
+							}
+							catch (Platform::Exception^ ex)
+							{
+
+							}
+						}
+					);
+                }
+                catch (Platform::Exception^ ex)
+                {
+
+                }
 
                 //strokesToReplay = inkCanvasCopy->InkPresenter->StrokeContainer->GetStrokes();
                 //OnReplay();
